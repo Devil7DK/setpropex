@@ -1,23 +1,47 @@
-LOCAL_PATH:= $(call my-dir)
+LOCAL_PATH := $(call my-dir)
 
-ifneq ($(TARGET_ARCH_ABI),arm64-v8a)
-ifneq ($(TARGET_ARCH_ABI),x86_64)
-ifneq ($(TARGET_ARCH_ABI),mips64)
+COMMON_SRC_FILES := \
+	setpropex.c \
+	system_properties.c \
+	system_properties_compat.c
+
+COMMON_CFLAGS := \
+	-Wno-implicit-function-declaration \
+	-Wno-unused-parameter \
+	-Wno-pointer-arith \
+	-Wno-sign-compare \
+	-std=c99
+
+COMMON_LIBS := \
+	liblog \
+	libc
+
+COMMON_INCLUDES := \
+	$(LOCAL_PATH)/include
+
 include $(CLEAR_VARS)
-LOCAL_SRC_FILES:= \
-	setpropex.c system_properties.c system_properties_compat.c
+
 LOCAL_MODULE := setpropex
-LOCAL_CFLAGS += -std=c99 -I jni/inc
-LOCAL_LDLIBS := -llog
+LOCAL_MODULE_TAGS := optional
+LOCAL_SRC_FILES := $(COMMON_SRC_FILES)
+LOCAL_C_INCLUDES := $(COMMON_INCLUDES)
+LOCAL_CFLAGS += $(COMMON_CFLAGS)
+LOCAL_STATIC_LIBRARIES := $(COMMON_LIBS)
+LOCAL_FORCE_STATIC_EXECUTABLE := true
+
 include $(BUILD_EXECUTABLE)
-endif
-endif
-endif
 
 include $(CLEAR_VARS)
-LOCAL_SRC_FILES:= \
-	setpropex.c system_properties.c system_properties_compat.c
-LOCAL_MODULE := setpropex-pie
-LOCAL_CFLAGS += -std=c99 -I jni/inc
-LOCAL_LDLIBS := -llog -pie -fPIE
+
+LOCAL_MODULE := setpropex-recovery
+LOCAL_MODULE_TAGS := optional
+LOCAL_SRC_FILES := $(COMMON_SRC_FILES)
+LOCAL_C_INCLUDES := $(COMMON_INCLUDES)
+LOCAL_CFLAGS += $(COMMON_CFLAGS)
+LOCAL_STATIC_LIBRARIES := $(COMMON_LIBS)
+LOCAL_FORCE_STATIC_EXECUTABLE := true
+
+LOCAL_MODULE_STEM := setpropex
+LOCAL_MODULE_PATH := $(TARGET_RECOVERY_ROOT_OUT)/sbin
+
 include $(BUILD_EXECUTABLE)
